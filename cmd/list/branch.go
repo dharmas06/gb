@@ -22,6 +22,7 @@ var listbranchCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		//	orgName := args[1]
+		orgName, _ := cmd.Flags().GetString("org")
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 
@@ -30,16 +31,11 @@ var listbranchCmd = &cobra.Command{
 		// GET  /orgs/{org}/Repos
 		var getBranchResponse []models.ListBranchresponse
 		// repos/gbuser/gbrepo/branches
-		err := client.Get("/repos/"+ownerName+"/"+repoName+"/branches", &getBranchResponse)
+		err := client.Get("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/branches", &getBranchResponse)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
-		// if getResponseresp.StatusCode != http.StatusOK {
-		// 	fmt.Printf("GitHub API returned status: %s\n", resp.Status)
-		// 	return
-		// }
 
 		if len(getBranchResponse) == 0 {
 			fmt.Println("No repositories found.")
@@ -55,10 +51,6 @@ var listbranchCmd = &cobra.Command{
 			})
 		}
 		table.Render()
-
-		//	fmt.Println("GET response:", getResponse)
-
-		//fmt.Println("list repository called")
 	},
 }
 
@@ -68,10 +60,12 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	listbranchCmd.Flags().StringP("owner", "o", "", "Speciy owner name")
+	listbranchCmd.Flags().StringP("org", "", "gborg", "Speciy organization name")
+	listbranchCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
 
 	listbranchCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to list branch))")
-	listbranchCmd.MarkFlagsRequiredTogether("repo", "owner")
+	listbranchCmd.MarkFlagsRequiredTogether("org", "repo", "owner")
+	listbranchCmd.MarkFlagRequired("org")
 	listbranchCmd.MarkFlagRequired("repo")
 	listbranchCmd.MarkFlagRequired("owner")
 	//createCmd.MarkFlagsRequiredTogether("repo", "branch")

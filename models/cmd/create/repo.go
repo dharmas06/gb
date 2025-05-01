@@ -22,7 +22,6 @@ var createRepoCmd = &cobra.Command{
 	Long:    `Allows user to create github repositories.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		orgName, _ := cmd.Flags().GetString("org")
-		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 		description, _ := cmd.Flags().GetString("desc")
 
@@ -34,7 +33,7 @@ var createRepoCmd = &cobra.Command{
 			Description: description,
 		}
 
-		err := client.Post("/orgs/"+orgName+"/"+ownerName+"/repos", repoReq, &createRepoResp)
+		err := client.Post("/orgs/"+orgName+"/repos", repoReq, &createRepoResp)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -72,15 +71,13 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 
-	createRepoCmd.Flags().StringP("org", "", "gborg", "Specify github organization name (required to create branch)")
-	createRepoCmd.Flags().StringP("owner", "o", "", "Specify github repository owner name (required to create branch)")
+	createRepoCmd.Flags().StringP("org", "o", "", "Specify github organization name (required to create branch)")
 	createRepoCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to create branch)")
 	createRepoCmd.Flags().StringP("desc", "d", "", "Specify github repository description (required to create branch)")
 	createRepoCmd.MarkFlagRequired("org")
-	createRepoCmd.MarkFlagRequired("owner")
 	createRepoCmd.MarkFlagRequired("repo")
 	createRepoCmd.MarkFlagRequired("desc")
-	createRepoCmd.MarkFlagsRequiredTogether("repo", "owner", "org", "desc")
+	createRepoCmd.MarkFlagsRequiredTogether("repo", "org", "desc")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

@@ -18,14 +18,13 @@ var repoCmd = &cobra.Command{
 	Short:   "Delete repository",
 	Long:    `Allows user to delete github repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 
 		client := gbapi.NewRestClient(gbapi.BaseURL, nil)
 
 		var resp any
-		err := client.Delete("/repos/"+orgName+"/"+ownerName+"/"+repoName, resp)
+		err := client.Delete("/repos/"+ownerName+"/"+repoName, resp)
 
 		if err != nil {
 			fmt.Println(err)
@@ -42,13 +41,11 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	repoCmd.Flags().StringP("org", "", "gborg", "Speciy github organization name")
-	repoCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	repoCmd.Flags().StringP("owner", "o", "", "Speciy github owner name")
 	repoCmd.Flags().StringP("repo", "r", "", "Specify github repository name(required to delete branch)")
-	repoCmd.MarkFlagRequired("org")
 	repoCmd.MarkFlagRequired("owner")
 	repoCmd.MarkFlagRequired("repo")
-	repoCmd.MarkFlagsRequiredTogether("org", "owner", "repo")
+	repoCmd.MarkFlagsRequiredTogether("owner", "repo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

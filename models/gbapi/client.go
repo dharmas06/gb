@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"time"
 )
@@ -23,15 +22,7 @@ func NewRestClient(baseURL string, headers map[string]string) *RestClient {
 		BaseURL: baseURL,
 		Headers: headers,
 		HTTPClient: &http.Client{
-
-			Transport: &http.Transport{
-				Dial: (&net.Dialer{
-					Timeout:   20 * time.Second,
-					KeepAlive: 20 * time.Second,
-				}).Dial,
-				ResponseHeaderTimeout: 20 * time.Second,
-			},
-			Timeout: 50 * time.Second,
+			Timeout: 10 * time.Second,
 		},
 	}
 }

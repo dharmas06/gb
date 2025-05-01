@@ -8,6 +8,7 @@ import (
 	"gb/gbapi"
 	"gb/models"
 	"os"
+	"strconv"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -20,7 +21,7 @@ var listPRCmd = &cobra.Command{
 	Short:   "List all pull request for branch from a repository.",
 	Long:    `Allows user to list all pull request for branch from a repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
+
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 
@@ -29,7 +30,7 @@ var listPRCmd = &cobra.Command{
 		// GET  /orgs/{org}/Repos
 		var getPRsResponse []models.PRResponse
 		// repos/gbuser/gbrepo/branches
-		err := client.Get("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/pulls", &getPRsResponse)
+		err := client.Get("/repos/"+ownerName+"/"+repoName+"/pulls", &getPRsResponse)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -41,11 +42,12 @@ var listPRCmd = &cobra.Command{
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Pull-request ID", "Name", "Repo Name", "Base Branch", "Head Branch", "PR Title", "State"})
 		for _, data := range getPRsResponse {
+			pullID := strconv.Itoa(data.ID)
 
 			table.Append([]string{
-				data.ID,
+				pullID,
 				data.User.Login,
-				data.Base.Repo,
+				data.Base.Repo.Name,
 				data.Base.Ref,
 				data.Head.Ref,
 				data.Title,
@@ -63,12 +65,10 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	/// repos/gbuser/gbrepo/pulls
-	listPRCmd.Flags().StringP("org", "", "gborg", "Speciy organization name")
-	listPRCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	listPRCmd.Flags().StringP("owner", "o", "", "Speciy owner name")
 
 	listPRCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to list branch))")
-	listPRCmd.MarkFlagsRequiredTogether("org", "repo", "owner")
-	listPRCmd.MarkFlagRequired("org")
+	listPRCmd.MarkFlagsRequiredTogether("repo", "owner")
 	listPRCmd.MarkFlagRequired("repo")
 	listPRCmd.MarkFlagRequired("owner")
 	//createCmd.MarkFlagsRequiredTogether("repo", "branch")

@@ -19,30 +19,29 @@ var closePRCmd = &cobra.Command{
 	Short:   "Close pull request from a branch.",
 	Long:    `Allows user to close pull request from a branch.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 		pullNumber, _ := cmd.Flags().GetString("pull-number")
-		//	title, _ := cmd.Flags().GetString("title")
-		//	body, _ := cmd.Flags().GetString("body")
-		//state, _ := cmd.Flags().GetString("state")
-		//	base, _ := cmd.Flags().GetString("base")
+		title, _ := cmd.Flags().GetString("title")
+		body, _ := cmd.Flags().GetString("body")
+		state, _ := cmd.Flags().GetString("state")
+		base, _ := cmd.Flags().GetString("base")
 
 		client := gbapi.NewRestClient(gbapi.BaseURL, nil)
 
 		var resp any
 
 		closePRReq := models.PRRequest{
-			State: "closed",
+			Title: title, Body: body, State: state, Base: base,
 		}
-		err := client.Patch("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/pulls/"+pullNumber, closePRReq, resp)
+		err := client.Patch("/repos/"+ownerName+"/"+repoName+"/pulls/"+pullNumber, closePRReq, resp)
 
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		fmt.Println(repoName + ":" + pullNumber + " PR got closed successfully.")
+		fmt.Println(repoName + ":" + pullNumber + " got closed successfully.")
 	},
 }
 
@@ -52,22 +51,21 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	closePRCmd.Flags().StringP("org", "", "", "Speciy github organization name")
-	closePRCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+
+	closePRCmd.Flags().StringP("owner", "o", "", "Speciy github owner name")
 	closePRCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to delete branch)")
-	closePRCmd.Flags().StringP("pull-number", "p", "", "Specify number that identifies the pull request.")
-	//closePRCmd.Flags().StringP("title", "t", "", "Specify title of the pull request.")
-	//closePRCmd.Flags().StringP("body", "b", "", "Specify contents of the pull request.")
-	//closePRCmd.Flags().StringP("state", "s", "", "State of this Pull Request. i.e., closed.")
-	//closePRCmd.Flags().StringP("base", "", "", "Specify name of the branch you want your changes pulled into.")
-	closePRCmd.MarkFlagRequired("org")
+	closePRCmd.Flags().StringP("pull-number", "", "", "Specify number that identifies the pull request.")
+	closePRCmd.Flags().StringP("title", "t", "", "Specify title of the pull request.")
+	closePRCmd.Flags().StringP("body", "b", "", "Specify contents of the pull request.")
+	closePRCmd.Flags().StringP("state", "s", "", "State of this Pull Request. i.e., closed.")
+	closePRCmd.Flags().StringP("base", "", "", "Specify name of the branch you want your changes pulled into.")
+
 	closePRCmd.MarkFlagRequired("owner")
 	closePRCmd.MarkFlagRequired("repo")
 	closePRCmd.MarkFlagRequired("pull-number")
-	//closePRCmd.MarkFlagRequired("title")
-	//closePRCmd.MarkFlagRequired("state")
-	//closePRCmd.MarkFlagRequired("base")
-	closePRCmd.MarkFlagsRequiredTogether("org", "owner", "repo", "pull-number")
+	closePRCmd.MarkFlagRequired("title")
+	closePRCmd.MarkFlagRequired("state")
+	closePRCmd.MarkFlagsRequiredTogether("owner", "repo", "pull-number", "title", "state")
 
 	//createCmd.MarkFlagsRequiredTogether("repo", "branch")
 

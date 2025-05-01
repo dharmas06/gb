@@ -8,6 +8,7 @@ import (
 	"gb/gbapi"
 	"gb/models"
 	"os"
+	"strconv"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -21,7 +22,7 @@ var createPRCmd = &cobra.Command{
 	Short:   "Create pull request",
 	Long:    `Allows user to create pull requests.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
+
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 		title, _ := cmd.Flags().GetString("title")
@@ -40,7 +41,7 @@ var createPRCmd = &cobra.Command{
 			Base:  base,
 		}
 
-		err := client.Post("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/pulls", createPRReq, &createPRResp)
+		err := client.Post("/repos/"+ownerName+"/"+repoName+"/pulls", createPRReq, &createPRResp)
 
 		if err != nil {
 			fmt.Println(err)
@@ -50,11 +51,11 @@ var createPRCmd = &cobra.Command{
 		table.SetHeader([]string{"Pull-request ID", "Name", "Repo Name", "Base Branch", "Head Branch", "PR Title", "State"})
 
 		//for _, repo := range createRepoResp {
-		//pullID := strconv.Itoa(createPRResp.ID)
+		pullID := strconv.Itoa(createPRResp.ID)
 		table.Append([]string{
-			createPRResp.ID,
+			pullID,
 			createPRResp.User.Login,
-			createPRResp.Base.Repo,
+			createPRResp.Base.Repo.Name,
 			createPRResp.Base.Ref,
 			createPRResp.Head.Ref,
 			createPRResp.Title,
@@ -74,22 +75,20 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	createPRCmd.Flags().StringP("org", "", "gborg", "Speciy github organization name")
-	createPRCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	createPRCmd.Flags().StringP("owner", "o", "", "Speciy github owner name")
 	createPRCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to delete branch)")
 
 	createPRCmd.Flags().StringP("title", "t", "", "Specify title of the new pull request.")
 	createPRCmd.Flags().StringP("body", "b", "", "Specify contents of the pull request.")
 	createPRCmd.Flags().StringP("head", "", "", "The name of the branch where your changes are implemented.(ie.,username:branch)")
 	createPRCmd.Flags().StringP("base", "", "", "Specify name of the branch you want your changes pulled into.")
-	createPRCmd.MarkFlagRequired("org")
 	createPRCmd.MarkFlagRequired("owner")
 	createPRCmd.MarkFlagRequired("repo")
 	createPRCmd.MarkFlagRequired("title")
 	createPRCmd.MarkFlagRequired("base")
 	createPRCmd.MarkFlagRequired("head")
 	createPRCmd.MarkFlagRequired("body")
-	createPRCmd.MarkFlagsRequiredTogether("org", "owner", "repo", "title", "body", "head", "base")
+	createPRCmd.MarkFlagsRequiredTogether("owner", "repo", "title", "body", "head", "base")
 
 	//createCmd.MarkFlagsRequiredTogether("repo", "branch")
 

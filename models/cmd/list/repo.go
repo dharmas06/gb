@@ -24,13 +24,12 @@ var repoCmd = &cobra.Command{
 		//	orgName := args[1]
 
 		orgName, _ := cmd.Flags().GetString("org")
-		ownerName, _ := cmd.Flags().GetString("owner")
 		//	fmt.Println(orgName)
 		client := gbapi.NewRestClient(gbapi.BaseURL, nil)
 
 		// GET  /orgs/{org}/Repos
 		var getResponse []models.RepoResponse
-		err := client.Get("/orgs/"+orgName+"/"+ownerName+"/repos", &getResponse)
+		err := client.Get("/orgs/"+orgName+"/repos", &getResponse)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -75,11 +74,9 @@ func init() {
 
 	// //get  /orgs/{org}/Repos
 
-	repoCmd.Flags().StringP("org", "", "gborg", "Specify github organization name")
-	repoCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	repoCmd.Flags().StringP("org", "o", "", "Specify github organization name")
 	repoCmd.MarkFlagRequired("org")
-	repoCmd.MarkFlagRequired("owner")
-	repoCmd.MarkFlagsRequiredTogether("org", "owner")
+	//createCmd.MarkFlagsRequiredTogether("repo", "branch")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

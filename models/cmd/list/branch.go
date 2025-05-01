@@ -14,23 +14,23 @@ import (
 )
 
 // createCmd represents the create command
-var repoCmd = &cobra.Command{
-	Use:     "repo",
-	Aliases: []string{"lr"},
-	Short:   "List all the repositories",
-	Long:    `Allows user to list all github repositories.`,
-	//Args:    cobra.ExactArgs(2),
+var listbranchCmd = &cobra.Command{
+	Use:     "branch",
+	Aliases: []string{"lb"},
+	Short:   "List all branches for a repository",
+	Long:    `Allows user to list all github branches for a repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//	orgName := args[1]
 
-		orgName, _ := cmd.Flags().GetString("org")
+		//	orgName := args[1]
 		ownerName, _ := cmd.Flags().GetString("owner")
-		//	fmt.Println(orgName)
+		repoName, _ := cmd.Flags().GetString("repo")
+
 		client := gbapi.NewRestClient(gbapi.BaseURL, nil)
 
 		// GET  /orgs/{org}/Repos
-		var getResponse []models.RepoResponse
-		err := client.Get("/orgs/"+orgName+"/"+ownerName+"/repos", &getResponse)
+		var getBranchResponse []models.ListBranchresponse
+		// repos/gbuser/gbrepo/branches
+		err := client.Get("/repos/"+ownerName+"/"+repoName+"/branches", &getBranchResponse)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -41,19 +41,17 @@ var repoCmd = &cobra.Command{
 		// 	return
 		// }
 
-		if len(getResponse) == 0 {
+		if len(getBranchResponse) == 0 {
 			fmt.Println("No repositories found.")
 			return
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Name", "Description", "User"})
+		table.SetHeader([]string{"Name"})
 
-		for _, repo := range getResponse {
+		for _, repo := range getBranchResponse {
 			table.Append([]string{
 				repo.Name,
-				repo.Description,
-				repo.OwnerInfo.Login,
 			})
 		}
 		table.Render()
@@ -64,22 +62,19 @@ var repoCmd = &cobra.Command{
 	},
 }
 
-//var org string
-
 func init() {
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
+	listbranchCmd.Flags().StringP("owner", "o", "", "Speciy owner name")
 
-	// //get  /orgs/{org}/Repos
-
-	repoCmd.Flags().StringP("org", "", "gborg", "Specify github organization name")
-	repoCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
-	repoCmd.MarkFlagRequired("org")
-	repoCmd.MarkFlagRequired("owner")
-	repoCmd.MarkFlagsRequiredTogether("org", "owner")
+	listbranchCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to list branch))")
+	listbranchCmd.MarkFlagsRequiredTogether("repo", "owner")
+	listbranchCmd.MarkFlagRequired("repo")
+	listbranchCmd.MarkFlagRequired("owner")
+	//createCmd.MarkFlagsRequiredTogether("repo", "branch")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

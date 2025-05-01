@@ -20,7 +20,7 @@ var createbranchCmd = &cobra.Command{
 	Short:   "Create branch",
 	Long:    `Allows user to create github branch and pull request.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
+
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 		ref, _ := cmd.Flags().GetString("ref")
@@ -35,7 +35,7 @@ var createbranchCmd = &cobra.Command{
 			SHA: sha,
 		}
 
-		err := client.Post("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/git/refs", createBranchReq, &createBranchResp)
+		err := client.Post("/repos/"+ownerName+"/"+repoName+"/git/refs", createBranchReq, &createBranchResp)
 
 		if err != nil {
 			fmt.Println(err)
@@ -64,14 +64,12 @@ func init() {
 
 	//post /Repos/{owner}/{Repo}/git/refs
 	// {"ref":"refs/heads/featureA","sha":"aa218f56b14c9653891f9e74264a383fa43fefbd"}
-	createbranchCmd.Flags().StringP("org", "", "", "Speciy github organization name")
 	createbranchCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to create branch)")
-	createbranchCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	createbranchCmd.Flags().StringP("owner", "o", "", "Speciy github owner name")
 	createbranchCmd.Flags().StringP("ref", "", "", "Speciy name of the fully qualified reference(ie: refs/heads/master).")
 	createbranchCmd.Flags().StringP("sha", "", "", "Speciy SHA1 value for this reference")
 
-	createbranchCmd.MarkFlagsRequiredTogether("org", "repo", "owner", "ref", "sha")
-	createbranchCmd.MarkFlagRequired("org")
+	createbranchCmd.MarkFlagsRequiredTogether("repo", "owner", "ref", "sha")
 	createbranchCmd.MarkFlagRequired("repo")
 	createbranchCmd.MarkFlagRequired("owner")
 	createbranchCmd.MarkFlagRequired("ref")

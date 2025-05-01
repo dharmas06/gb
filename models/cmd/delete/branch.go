@@ -18,7 +18,7 @@ var deletebranchCmd = &cobra.Command{
 	Short:   "Delete branches for a repository",
 	Long:    `Allows user to delete github branches for a specified repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		orgName, _ := cmd.Flags().GetString("org")
+
 		ownerName, _ := cmd.Flags().GetString("owner")
 		repoName, _ := cmd.Flags().GetString("repo")
 		ref, _ := cmd.Flags().GetString("ref")
@@ -26,7 +26,7 @@ var deletebranchCmd = &cobra.Command{
 		client := gbapi.NewRestClient(gbapi.BaseURL, nil)
 
 		var resp any
-		err := client.Delete("/repos/"+orgName+"/"+ownerName+"/"+repoName+"/git/refs/"+ref, resp)
+		err := client.Delete("/repos/"+ownerName+"/"+repoName+"/git/refs/"+ref, resp)
 
 		if err != nil {
 			fmt.Println(err)
@@ -43,15 +43,13 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	deletebranchCmd.Flags().StringP("org", "", "gborg", "Speciy github organization name")
-	deletebranchCmd.Flags().StringP("owner", "o", "", "Speciy github repository owner name")
+	deletebranchCmd.Flags().StringP("owner", "o", "", "Speciy github owner name")
 	deletebranchCmd.Flags().StringP("repo", "r", "", "Specify github repository name (required to delete branch)")
 	deletebranchCmd.Flags().StringP("ref", "", "", "Speciy reference/branch name (ie: master).")
-	deletebranchCmd.MarkFlagRequired("org")
 	deletebranchCmd.MarkFlagRequired("owner")
 	deletebranchCmd.MarkFlagRequired("repo")
 	deletebranchCmd.MarkFlagRequired("ref")
-	deletebranchCmd.MarkFlagsRequiredTogether("org", "owner", "repo", "ref")
+	deletebranchCmd.MarkFlagsRequiredTogether("owner", "repo", "ref")
 
 	//createCmd.MarkFlagsRequiredTogether("repo", "branch")
 
